@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Drept Administrativ</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    max-width: 700px;
+    width: 100%;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 28px;
+  }
+  
+  .subtitle {
+    text-align: center;
+    color: #999;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+  
+  .quiz-container {
+    display: none;
+  }
+  
+  .quiz-container.active {
+    display: block;
+  }
+  
+  .progress {
+    background: #ddd;
+    height: 8px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    background: #667eea;
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  
+  .question-number {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .question {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+  }
+  
+  .options {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .option {
+    padding: 15px;
+    background: #f9f9f9;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 15px;
+  }
+  
+  .option:hover {
+    background: #f0f0f0;
+    border-color: #667eea;
+  }
+  
+  .option.selected {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+  }
+  
+  .option.correct {
+    background: #4caf50;
+    color: white;
+    border-color: #4caf50;
+  }
+  
+  .option.incorrect {
+    background: #f44336;
+    color: white;
+    border-color: #f44336;
+  }
+  
+  .buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  button {
+    padding: 12px 30px;
+    background-color: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #5568d3;
+    transform: translateY(-2px);
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .results {
+    text-align: center;
+    display: none;
+  }
+  
+  .results.active {
+    display: block;
+  }
+  
+  .score {
+    font-size: 48px;
+    color: #667eea;
+    margin: 20px 0;
+    font-weight: bold;
+  }
+  
+  .score-text {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  .start-screen {
+    text-align: center;
+    display: block;
+  }
+  
+  .start-screen.hidden {
+    display: none;
+  }
+  
+  .start-screen h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+  
+  .start-screen p {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 16px;
+  }
+  
+  .start-btn {
+    padding: 15px 40px;
+    background-color: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+  
+  .start-btn:hover {
+    background-color: #5568d3;
+    transform: scale(1.05);
+  }
+  
+  @media (max-width: 600px) {
+    .container {
+      padding: 20px;
+    }
+    
+    h1 {
+      font-size: 22px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📚 Quiz Drept Administrativ</h1>
+  <p class="subtitle">100 întrebări de testare</p>
+  
+  <div class="start-screen" id="startScreen">
+    <h2>Bine ai venit!</h2>
+    <p>Vei răspunde la 100 de întrebări din domeniul Dreptului Administrativ.</p>
+    <p style="color: #999; font-size: 14px;">⏱️ Fiecare întrebare are o singură răspuns corect.</p>
+    <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+  </div>
+  
+  <div class="quiz-container" id="quizContainer">
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="question-number" id="questionNumber"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    
+    <div class="buttons">
+      <button id="nextBtn" onclick="nextQuestion()" disabled>Următoarea</button>
+    </div>
+  </div>
+  
+  <div class="results" id="results">
+    <h2>Quiz Completat! 🎉</h2>
+    <div class="score" id="finalScore"></div>
+    <div class="score-text" id="scoreText"></div>
+    <button onclick="restartQuiz()">Încearcă din nou</button>
+  </div>
+</div>
+
+<script>
+  const quizData = [
+    { question: "Criteriul principal care justifică includerea dreptului administrativ în sfera dreptului public este:", options: ["Existența raporturilor juridice patrimoniale", "Participarea statului ca titular al puterii publice", "Aplicarea normelor de către instanțe", "Caracterul scris al normelor"], correct: 1 },
+    { question: "Concepția lui Ulpian diferențiază dreptul public de dreptul privat în funcție de:", options: ["Izvorul normelor juridice", "Natura sancțiunilor aplicabile", "Interesul ocrotit de normă", "Procedura de aplicare"], correct: 2 },
+    { question: "Raportul juridic administrativ se individualizează prin:", options: ["Egalitatea juridică a subiectelor", "Caracterul consensual al obligațiilor", "Exercitarea prerogativelor de putere publică de către unul dintre subiecți", "Natura patrimonială a drepturilor"], correct: 2 },
+    { question: "Prezumția de legalitate a actului administrativ produce efecte:", options: ["Până la suspendarea actului", "Până la revocarea de către emitent", "Până la constatarea nelegalității de către autoritatea competentă", "Doar până la introducerea acțiunii în instanță"], correct: 2 },
+    { question: "Caracterul executoriu din oficiu al actului administrativ exprimă:", options: ["Forța juridică egală cu legea", "Aplicabilitatea sa fără autorizare jurisdicțională prealabilă", "Imposibilitatea suspendării actului", "Imunitatea față de controlul judecătoresc"], correct: 1 },
+    { question: "Constituția consacră dreptul persoanei vătămate de o autoritate publică prin:", options: ["Art. 21", "Art. 44", "Art. 52", "Art. 124"], correct: 2 },
+    { question: "Contenciosul administrativ reprezintă garanția:", options: ["Autonomiei locale", "Legalității activității administrației publice", "Separației puterilor", "Dreptului de proprietate"], correct: 1 },
+    { question: "Din punct de vedere constituțional, Parlamentul este:", options: ["Autoritate a administrației publice centrale", "Autoritate publică reprezentativă supremă", "Organ administrativ autonom", "Autoritate jurisdicțională"], correct: 1 },
+    { question: "Orice autoritate a administrației publice este:", options: ["Instituție publică", "Organ jurisdicțional", "Autoritate publică", "Autoritate autonomă"], correct: 2 },
+    { question: "Administrația publică în sens material desemnează:", options: ["Ansamblul organelor administrative", "Activitatea de organizare a executării și executare a legii", "Totalitatea funcționarilor publici", "Exclusiv activitatea Guvernului"], correct: 1 },
+    { question: "Administrația publică în sens formal desemnează:", options: ["Activitatea executivă a statului", "Sistemul autorităților care realizează administrația publică", "Totalitatea serviciilor publice"], correct: 1 },
+    { question: "Interesul public se caracterizează prin:", options: ["Determinare exclusiv economică", "Recunoaștere juridică și vocație colectivă", "Existență exclusiv constituțională", "Caracter patrimonial"], correct: 1 },
+    { question: "Necesitățile spirituale de interes public vizează în principal:", options: ["Infrastructura rutieră", "Alimentarea cu energie", "Educația și cultura", "Sistemul fiscal"], correct: 2 },
+    { question: "Serviciul public există pentru:", options: ["Realizarea profitului", "Satisfacerea continuă a interesului public", "Exercitarea funcției legislative", "Aplicarea sancțiunilor contravenționale"], correct: 1 },
+    { question: "Principiul continuității serviciului public impune:", options: ["Funcționarea permanentă potrivit naturii activității", "Lipsa oricărei reorganizări", "Finanțare exclusiv bugetară", "Gratuitatea serviciului"], correct: 0 },
+    { question: "Principiul adaptabilității serviciului public exprimă:", options: ["Imuabilitatea organizării administrative", "Necesitatea ajustării la evoluția nevoilor sociale", "Independența față de lege", "Autonomia financiară"], correct: 1 },
+    { question: "Avocatul Poporului este:", options: ["Autoritate jurisdicțională", "Autoritate autonomă cu atribuții de protecție a drepturilor și libertăților", "Organ al Guvernului", "Instituție aflată în subordinea Parlamentului"], correct: 1 },
+    { question: "Actul specific emis de Avocatul Poporului este:", options: ["Decizia", "Hotărârea", "Recomandarea", "Ordinul"], correct: 2 },
+    { question: "Curtea Constituțională este calificată constituțional drept:", options: ["Instanță supremă", "Autoritate administrativă autonomă", "Garant al supremației Constituției", "Organ consultativ"], correct: 2 },
+    { question: "Mandatul judecătorilor Curții Constituționale este de:", options: ["4 ani", "5 ani", "6 ani", "9 ani"], correct: 3 },
+    { question: "Curtea de Conturi exercită în principal:", options: ["Control politic", "Control financiar extern", "Control jurisdicțional constituțional", "Control administrativ ierarhic"], correct: 1 },
+    { question: "Izvoarele materiale ale dreptului administrativ reprezintă:", options: ["Actele normative în vigoare", "Circumstanțele sociale care determină apariția normelor juridice", "Practica instanțelor", "Doctrina administrativă"], correct: 1 },
+    { question: "Forța juridică a unui act normativ depinde în primul rând de:", options: ["Numărul articolelor sale", "Procedura de publicare", "Poziția autorității emitente în sistemul autorităților publice", "Numărul persoanelor cărora li se aplică"], correct: 2 },
+    { question: "În ierarhia izvoarelor dreptului administrativ, imediat după Constituție se situează:", options: ["Hotărârile Guvernului", "Ordinele miniștrilor", "Legile organice", "Actele administrative individuale"], correct: 2 },
+    { question: "Doctrina dreptului administrativ este considerată:", options: ["Izvor formal obligatoriu", "Izvor material indirect și factor de influență asupra evoluției dreptului", "Act normativ secundar", "Izvor cu forță juridică egală cu jurisprudența constituțională"], correct: 1 },
+    { question: "Regimul constituțional al României este calificat în doctrină drept:", options: ["Regim prezidențial", "Regim parlamentar", "Regim semiprezidențial parlamentarizat", "Regim directorial"], correct: 2 },
+    { question: "Legitimitatea democratică a Președintelui României derivă în principal din:", options: ["Numirea de către Parlament", "Alegerea prin vot universal, direct, secret și liber exprimat", "Desemnarea de către Guvern", "Confirmarea de către CCR"], correct: 1 },
+    { question: "Pentru alegerea în primul tur de scrutin este necesar:", options: ["Majoritatea voturilor valabil exprimate", "Majoritatea alegătorilor prezenți", "Majoritatea voturilor cetățenilor înscriși în listele electorale", "Două treimi din voturile exprimate"], correct: 2 },
+    { question: "Mandatul Președintelui României este de:", options: ["4 ani", "5 ani", "6 ani", "7 ani"], correct: 1 },
+    { question: "Aceeași persoană poate îndeplini funcția de Președinte al României:", options: ["O singură dată", "Cel mult două mandate", "Cel mult trei mandate", "Fără limită constituțională"], correct: 1 },
+    { question: "În exercitarea mandatului său, Președintele României nu poate fi membru al:", options: ["Academiei Române", "Unui partid politic", "Consiliului Suprem de Apărare a Țării", "Consiliului European"], correct: 1 },
+    { question: "Potrivit Constituției, Președintele reprezintă:", options: ["Guvernul României", "Parlamentul României", "Statul român", "Puterea executivă"], correct: 2 },
+    { question: "Președintele este garantul:", options: ["Legalității administrative", "Independenței justiției", "Independenței naționale, unității și integrității teritoriale", "Activității Guvernului"], correct: 2 },
+    { question: "Rolul de mediere exercitat de Președinte privește raporturile dintre:", options: ["Parlament și CCR", "Stat și societate, precum și între autoritățile publice", "Guvern și instanțe", "Autoritățile locale și centrale"], correct: 1 },
+    { question: "Mesajele adresate Parlamentului de către Președinte sunt considerate:", options: ["Acte administrative", "Acte jurisdicționale", "Acte exclusiv politice", "Acte normative"], correct: 2 },
+    { question: "Decretele prezidențiale devin opozabile erga omnes prin:", options: ["Semnare", "Contrasemnare", "Publicare în Monitorul Oficial", "Comunicarea către Guvern"], correct: 2 },
+    { question: "Sancțiunea nepublicării unui decret prezidențial este:", options: ["Nulitatea relativă", "Revocarea de drept", "Inexistența actului", "Suspendarea efectelor"], correct: 2 },
+    { question: "Contrasemnarea decretelor prezidențiale de către Prim-ministru are rolul principal de:", options: ["Confirmare administrativă", "Transfer al răspunderii politice asupra Guvernului", "Verificare jurisdicțională", "Aprobare parlamentară"], correct: 1 },
+    { question: "Numirea Guvernului de către Președinte reprezintă o atribuție exercitată în raport cu:", options: ["Puterea judecătorească", "Funcția legislativă", "Funcția executivă", "Administrația locală"], correct: 2 },
+    { question: "Președintele poate cere reexaminarea unei legi înainte de promulgare:", options: ["De două ori", "O singură dată", "Ori de câte ori consideră necesar", "Numai cu acordul CCR"], correct: 2 },
+    { question: "Termenul obișnuit de promulgare a legii este:", options: ["10 zile", "15 zile", "20 zile", "30 zile"], correct: 2 },
+    { question: "Președintele poate sesiza CCR înainte de promulgarea legii în cadrul:", options: ["Controlului posterior de constituționalitate", "Controlului concret de constituționalitate", "Controlului anterior de constituționalitate", "Excepției de neconstituționalitate"], correct: 2 },
+    { question: "Dizolvarea Parlamentului constituie:", options: ["O atribuție discreționară nelimitată", "O măsură excepțională condiționată constituțional", "O obligație constituțională", "O atribuție exercitată de Guvern"], correct: 1 },
+    { question: "Constituția permite dizolvarea Parlamentului după:", options: ["Adoptarea unei moțiuni de cenzură", "Respingerea a două solicitări de învestitură în termen de 60 de zile", "Respingerea bugetului de stat", "Demisia Guvernului"], correct: 1 },
+    { question: "Președintele poate participa la ședințele Guvernului:", options: ["Numai la invitația Prim-ministrului", "În cazurile expres prevăzute de Constituție", "Numai în stare de urgență", "Exclusiv când este convocat de Parlament"], correct: 1 },
+    { question: "În cazul participării Președintelui la ședința Guvernului:", options: ["Prim-ministrul conduce ședința", "Ministrul Justiției conduce ședința", "Președintele conduce ședința", "Secretarul General al Guvernului conduce ședința"], correct: 2 },
+    { question: "Suspendarea din funcție a Președintelui poate interveni pentru:", options: ["Orice faptă penală", "Încălcarea gravă a Constituției", "Pierderea sprijinului politic", "Emiterea unui decret nelegal"], correct: 1 },
+    { question: "Avizul Curții Constituționale în procedura suspendării este:", options: ["Obligatoriu și conform", "Facultativ", "Consultativ", "Decizional"], correct: 2 },
+    { question: "După suspendarea Președintelui, demiterea acestuia poate avea loc prin:", options: ["Hotărârea Parlamentului", "Decizia CCR", "Referendum național", "Hotărârea Guvernului"], correct: 2 },
+    { question: "Singura infracțiune pentru care Președintele poate fi pus sub acuzare în timpul mandatului este:", options: ["Abuzul în serviciu", "Corupția", "Înaltă trădare", "Traficul de influență"], correct: 2 },
+    { question: "Potrivit Constituției, Guvernul exercită:", options: ["Funcția jurisdicțională a statului", "Conducerea generală a administrației publice", "Controlul constituționalității legilor", "Activitatea de legiferare primară"], correct: 1 },
+    { question: "Poziția Guvernului în sistemul autorităților publice este determinată de apartenența sa la:", options: ["Puterea legislativă", "Puterea executivă", "Autoritățile autonome", "Autoritatea judecătorească"], correct: 1 },
+    { question: "Caracterul politic al Guvernului rezultă în principal din:", options: ["Alegerea sa prin vot universal", "Necesitatea obținerii votului de încredere al Parlamentului", "Numirea miniștrilor de către CCR", "Subordonarea față de Președinte"], correct: 1 },
+    { question: "Programul de guvernare reprezintă:", options: ["Act administrativ normativ", "Fundamentul politic al învestiturii Guvernului", "Act al Parlamentului", "Act al Președintelui"], correct: 1 },
+    { question: "Guvernul răspunde politic în fața:", options: ["Președintelui României", "Parlamentului", "Curții Constituționale", "Curții de Conturi"], correct: 1 },
+    { question: "Potrivit Codului administrativ, Guvernul este alcătuit din:", options: ["Prim-ministru și miniștri", "Prim-ministru, miniștri și prefecți", "Prim-ministru, miniștri și secretari de stat", "Prim-ministru și conducătorii autorităților autonome"], correct: 0 },
+    { question: "Secretarul General al Guvernului are rang de:", options: ["Secretar de stat", "Ministru", "Prefect", "Consilier de stat"], correct: 0 },
+    { question: "Cancelaria Prim-Ministrului este:", options: ["Autoritate administrativă autonomă", "Structură fără personalitate juridică în cadrul aparatului de lucru al Guvernului", "Minister de sine stătător", "Instituție aflată în subordinea Parlamentului"], correct: 1 },
+    { question: "Pentru a fi membru al Guvernului este obligatorie:", options: ["Cetățenia română și domiciliul în România", "Calitatea de parlamentar", "Vârsta minimă de 35 de ani", "Studii juridice"], correct: 0 },
+    { question: "O persoană condamnată penal definitiv nu poate fi membru al Guvernului deoarece se încalcă cerința de:", options: ["Capacitate electorală", "Integritate publică", "Reprezentativitate politică", "Stabilitate administrativă"], correct: 1 },
+    { question: "Desemnarea candidatului pentru funcția de Prim-ministru aparține:", options: ["Parlamentului", "Curții Constituționale", "Președintelui României", "Senatului"], correct: 2 },
+    { question: "Candidatul desemnat pentru funcția de Prim-ministru trebuie să solicite votul de încredere în termen de:", options: ["10 zile", "15 zile", "20 zile", "30 zile"], correct: 1 },
+    { question: "Votul de încredere pentru învestirea Guvernului se acordă cu:", options: ["Majoritatea simplă a celor prezenți", "Majoritatea deputaților", "Majoritatea senatorilor", "Majoritatea deputaților și senatorilor"], correct: 3 },
+    { question: "Guvernul își exercită mandatul după:", options: ["Publicarea decretului de numire", "Obținerea votului Parlamentului", "Depunerea jurământului în fața Președintelui", "Publicarea în Monitorul Oficial"], correct: 2 },
+    { question: "În raport cu miniștrii, Prim-ministrul exercită:", options: ["Autoritate ierarhică absolută", "Autoritate de coordonare politică și administrativă", "Control jurisdicțional", "Control constituțional"], correct: 1 },
+    { question: "Moțiunea de cenzură reprezintă principalul instrument de:", options: ["Control administrativ", "Control parlamentar asupra Guvernului", "Control constituțional", "Control financiar"], correct: 1 },
+    { question: "Adoptarea moțiunii de cenzură are ca efect:", options: ["Suspendarea Guvernului", "Revocarea Prim-ministrului", "Demiterea Guvernului", "Dizolvarea Parlamentului"], correct: 2 },
+    { question: "Demisia Prim-ministrului determină:", options: ["Încetarea mandatului întregului Guvern", "Numirea automată a unui nou premier", "Suspendarea activității Guvernului", "Organizarea alegerilor parlamentare"], correct: 0 },
+    { question: "Guvernul al cărui mandat a încetat îndeplinește:", options: ["Toate atribuțiile constituționale", "Exclusiv atribuții legislative", "Numai actele necesare administrării treburilor publice curente", "Exclusiv atribuții financiare"], correct: 2 },
+    { question: "Funcția de membru al Guvernului este incompatibilă cu:", options: ["Funcția de cadru didactic universitar", "Funcția de primar", "Activitatea de cercetare științifică", "Activitatea publicistică"], correct: 1 },
+    { question: "Nerespectarea regimului incompatibilităților conduce la:", options: ["Suspendarea mandatului", "Încetarea funcției de membru al Guvernului", "Revocarea Guvernului", "Dizolvarea Parlamentului"], correct: 1 },
+    { question: "Demisia unui membru al Guvernului devine irevocabilă:", options: ["La data publicării decretului de revocare", "După aprobarea Parlamentului", "Din momentul luării la cunoștință de către Prim-ministru, dar nu mai târziu de 15 zile de la depunere", "După validarea de către Președinte"], correct: 2 },
+    { question: "Președintele poate refuza o propunere de numire într-o funcție de ministru:", options: ["Nelimitat", "O singură dată", "De două ori", "Niciodată"], correct: 0 },
+    { question: "Interimatul funcției de ministru nu poate depăși:", options: ["30 de zile", "45 de zile", "60 de zile", "90 de zile"], correct: 2 },
+    { question: "Actele juridice prin care Guvernul își exercită competența normativă sunt:", options: ["Decretele și ordinele", "Hotărârile și ordonanțele", "Recomandările și avizele", "Circularele și instrucțiunile"], correct: 1 },
+    { question: "Diferența esențială dintre hotărârile Guvernului și ordonanțe constă în faptul că:", options: ["Numai hotărârile sunt acte administrative", "Numai ordonanțele produc efecte juridice", "Ordonanțele intervin în domeniul legii, iar hotărârile organizează executarea acesteia", "Hotărârile au forță juridică superioară ordonanțelor"], correct: 2 },
+    { question: "Hotărârile Guvernului sunt emise:", options: ["Pentru modificarea Constituției", "Pentru organizarea executării legilor", "Pentru suspendarea Președintelui", "Pentru revizuirea tratatelor internaționale"], correct: 1 },
+    { question: "O hotărâre de Guvern care încalcă legea poate fi atacată:", options: ["La Parlament", "La instanța de contencios administrativ", "La Avocatul Poporului", "La Curtea de Conturi"], correct: 1 },
+    { question: "Ordonanțele Guvernului au forță juridică:", options: ["Inferioară ordinelor ministeriale", "Egală cu a legii", "Egală cu a Constituției", "Inferioară hotărârilor Guvernului"], correct: 1 },
+    { question: "Ordonanțele de urgență se emit:", options: ["Numai în perioada vacanței parlamentare", "În situații extraordinare a căror reglementare nu poate fi amânată", "Numai cu aprobarea CCR", "Exclusiv în domeniul legilor organice"], correct: 1 },
+    { question: "Constituția României reprezintă:", options: ["Izvor indirect al dreptului administrativ", "Cel mai important izvor al dreptului administrativ", "Act administrativ individual", "Act emis de Guvern"], correct: 1 },
+    { question: "Legea fundamentală a statului român este:", options: ["Codul Administrativ", "Constituția", "Legea contenciosului administrativ", "Codul Civil"], correct: 1 },
+    { question: "Controlul asupra constituționalității legilor este realizat de:", options: ["Guvern", "Înalta Curte de Casație și Justiție", "Curtea Constituțională", "Parlament"], correct: 2 },
+    { question: "Curtea Constituțională este alcătuită din:", options: ["7 judecători", "9 judecători", "11 judecători", "15 judecători"], correct: 1 },
+    { question: "Președintele României numește în CCR:", options: ["2 judecători", "3 judecători", "4 judecători", "5 judecători"], correct: 1 },
+    { question: "Curtea de Conturi verifică:", options: ["Constituționalitatea legilor", "Legalitatea hotărârilor judecătorești", "Modul de administrare a resurselor financiare publice", "Organizarea alegerilor"], correct: 2 },
+    { question: "Prefectul este:", options: ["Autoritate autonomă locală", "Reprezentantul Guvernului în teritoriu", "Membru al Consiliului Local", "Autoritate judecătorească"], correct: 1 },
+    { question: "Primarul este:", options: ["Autoritate autonomă locală", "Autoritate centrală autonomă", "Autoritate judecătorească", "Organ al Guvernului"], correct: 0 },
+    { question: "Consiliul Județean face parte din:", options: ["Administrația publică centrală", "Administrația publică locală", "Puterea judecătorească", "Autoritățile autonome centrale"], correct: 1 },
+    { question: "Serviciul public urmărește:", options: ["Interesul privat", "Interesul public", "Interesul comercial", "Interesul electoral"], correct: 1 },
+    { question: "Caracterul continuu al serviciului public presupune:", options: ["Funcționare ocazională", "Funcționare repetată și constantă", "Funcționare exclusiv online", "Funcționare doar în zilele lucrătoare"], correct: 1 },
+    { question: "Adaptabilitatea serviciului public înseamnă:", options: ["Menținerea acelorași proceduri indiferent de context", "Posibilitatea de a se adapta realităților sociale", "Reducerea numărului de beneficiari", "Desființarea serviciului"], correct: 1 },
+    { question: "Instituțiile de utilitate publică sunt finanțate în principal:", options: ["Exclusiv de Guvern", "Din surse private precum taxe și donații", "Exclusiv de consiliile locale", "Exclusiv din fonduri europene"], correct: 1 },
+    { question: "O universitate privată reprezintă:", options: ["Instituție publică", "Instituție de utilitate publică", "Autoritate publică", "Autoritate autonomă"], correct: 1 },
+    { question: "O universitate de stat reprezintă:", options: ["Instituție de utilitate publică", "Instituție publică", "Autoritate autonomă", "Autoritate constituțională"], correct: 1 },
+    { question: "Interesul public cuprinde:", options: ["Exclusiv necesități economice", "Necesități materiale și spirituale", "Exclusiv necesități spirituale", "Exclusiv interese politice"], correct: 1 },
+    { question: "Reabilitarea unei școli reprezintă:", options: ["Necesitate spirituală", "Necesitate materială de interes public", "Act jurisdicțional", "Interes privat"], correct: 1 },
+    { question: "Biblioteca publică este un exemplu de:", options: ["Necesitate spirituală de interes public", "Necesitate materială de interes public", "Act administrativ individual", "Autoritate publică"], correct: 0 },
+    { question: "În cadrul raporturilor de drept administrativ, cetățeanul se află:", options: ["Întotdeauna pe poziție superioară autorității", "În raport de subordonare față de autoritatea publică", "În afara raportului juridic", "Pe poziție identică Parlamentului"], correct: 1 },
+    { question: "Una dintre cele mai importante trăsături ale dreptului administrativ este:", options: ["Protejarea interesului privat", "Regimul de putere publică", "Lipsa constrângerii statului", "Egalitatea absolută a părților"], correct: 1 }
+  ];
+  
+  let currentQuestion = 0;
+  let score = 0;
+  let selectedAnswer = null;
+  let answered = false;
+  
+  function startQuiz() {
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('quizContainer').classList.add('active');
+    loadQuestion();
+  }
+  
+  function loadQuestion() {
+    const question = quizData[currentQuestion];
+    document.getElementById('questionNumber').innerText = `Întrebarea ${currentQuestion + 1} din ${quizData.length}`;
+    document.getElementById('question').innerText = question.question;
+    
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML = '';
+    
+    const optionLetters = ['A', 'B', 'C', 'D'];
+    question.options.forEach((option, index) => {
+      const btn = document.createElement('div');
+      btn.className = 'option';
+      btn.innerText = optionLetters[index] + ') ' + option;
+      btn.onclick = () => selectOption(index);
+      optionsDiv.appendChild(btn);
+    });
+    
+    updateProgressBar();
+    answered = false;
+    selectedAnswer = null;
+    document.getElementById('nextBtn').disabled = true;
+  }
+  
+  function selectOption(index) {
+    if (answered) return;
+    
+    selectedAnswer = index;
+    answered = true;
+    
+    const options = document.querySelectorAll('.option');
+    const correctAnswer = quizData[currentQuestion].correct;
+    
+    options.forEach((option, i) => {
+      if (i === correctAnswer) {
+        option.classList.add('correct');
+      } else if (i === selectedAnswer && i !== correctAnswer) {
+        option.classList.add('incorrect');
+      }
+      option.style.pointerEvents = 'none';
+    });
+    
+    if (selectedAnswer === correctAnswer) {
+      score++;
+    }
+    
+    document.getElementById('nextBtn').disabled = false;
+  }
+  
+  function nextQuestion() {
+    currentQuestion++;
+    
+    if (currentQuestion < quizData.length) {
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+  
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / quizData.length) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+  }
+  
+  function showResults() {
+    document.getElementById('quizContainer').classList.remove('active');
+    document.getElementById('results').classList.add('active');
+    
+    const percentage = (score / quizData.length) * 100;
+    document.getElementById('finalScore').innerText = `${score} / ${quizData.length}`;
+    
+    let message = '';
+    if (percentage === 100) {
+      message = 'Perfect! Cunoști Dreptul Administrativ la perfecție! 🧠';
+    } else if (percentage >= 90) {
+      message = 'Excelent! Performanță remarcabilă! 👏';
+    } else if (percentage >= 80) {
+      message = 'Foarte bine! Ai o cunoaștere solidă! 📚';
+    } else if (percentage >= 70) {
+      message = 'Bine! Continua să studiezi! 💪';
+    } else if (percentage >= 60) {
+      message = 'Acceptabil! Mai sunt lucruri de învățat! 📖';
+    } else if (percentage >= 50) {
+      message = 'Revin! Încearcă din nou! 🎯';
+    } else {
+      message = 'Keep practicing! 🚀';
+    }
+    
+    document.getElementById('scoreText').innerText = `${Math.round(percentage)}% - ${message}`;
+  }
+  
+  function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    selectedAnswer = null;
+    answered = false;
+    
+    document.getElementById('startScreen').classList.remove('hidden');
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('quizContainer').classList.remove('active');
+  }
+</script>
+
+</body>
+</html>
